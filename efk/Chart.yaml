@@ -1,0 +1,9 @@
+name: efk
+version: 0.0.1
+appVersion: 7.7.1
+description: EFK Stack
+keywords:
+- elasitcsearch
+- kibana
+- fluent-bit
+- logs

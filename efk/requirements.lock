@@ -1,0 +1,15 @@
+dependencies:
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 7.7.1
+- name: kibana
+  repository: https://helm.elastic.co
+  version: 7.7.1
+- name: fluent-bit
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.8.16
+- name: elasticsearch-curator
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 2.1.5
+digest: sha256:f87a8970e7fb670cb8781282a79502d40b022ef31c387f9fcda25fb5ad3d0f43
+generated: "2020-06-11T23:40:04.298852+09:00"

@@ -1,0 +1,64 @@
+elasticsearch:
+  replicas: 1
+  minimumMasterNodes: 1
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "pacific-gold-storage-policy"
+    resources:
+      requests:
+        storage: 1Gi
+  podSecurityPolicy:
+    create: true
+    name: "psp-elasitic-privileged"
+  lifecycle:
+    postStart:
+      exec:
+        command:
+        - bash
+        - -c
+        - |
+          #!/bin/bash
+          # Add a template to adjust number of shards/replicas
+          TEMPLATE_NAME=my_template
+          INDEX_PATTERN="logstash-*"
+          SHARD_COUNT=8
+          REPLICA_COUNT=1
+          ES_URL=http://localhost:9200
+          while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' $ES_URL)" != "200" ]]; do sleep 1; done
+          curl -XPUT "$ES_URL/_template/$TEMPLATE_NAME" -H 'Content-Type: application/json' -d'{"index_patterns":['\""$INDEX_PATTERN"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
+  imagePullSecrets: []
+
+elasticsearch-curator:
+  config:
+    elasticsearch: 
+      hosts: "elasticsearch-master"
+
+kibana:
+  elasticsearchHosts: "http://elasticsearch-master:9200"
+  replicas: 1
+  httpPort: 5601
+  service:
+    type: LoadBalancer
+    port: 5601
+  ingress:
+    enabled: false
+    annotations: {}
+    hosts:
+      - chart-example.local
+    tls: []
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+  imagePullSecrets: []
+
+fluent-bit:
+  enabled: true
+  backend:
+    type: es
+    es:
+      host: elasticsearch-master
+      port: 9200
+      index: kubernetes_cluster
+      logstash_prefix: kubernetes_cluster
+
+
